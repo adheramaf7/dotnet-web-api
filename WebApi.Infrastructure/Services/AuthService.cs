@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using WebApi.Application.DTOs.Request;
+using WebApi.Application.DTOs.Request.Auth;
 using WebApi.Application.DTOs.Response;
 using WebApi.Application.Interfaces.Service;
 using WebApi.Domain.Enums;
@@ -26,12 +27,46 @@ namespace WebApi.Infrastructure.Services
 
             var roles = await userManager.GetRolesAsync(user);
             var token = tokenGenerator.GenerateToken(user, roles);
+            var refreshToken = tokenGenerator.GenerateRefreshToken();
 
             return new AuthResponse
             {
                 UserId = user.Id,
                 Email = user.Email!,
-                Token = token
+                Token = token,
+                RefreshToken = refreshToken,
+            };
+        }
+
+        public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request)
+        {
+            var principal = tokenGenerator.GetPrincipalFromExpiredToken(request.AccessToken);
+            var email = principal?.Identity?.Name;
+
+            if (email is null)
+                throw new Exception("Invalid access token");
+
+            var user = await userManager.FindByEmailAsync(email);
+
+            if (user is null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                throw new Exception("Invalid refresh token");
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            var newAccessToken = tokenGenerator.GenerateToken(user, roles);
+            var newRefreshToken = tokenGenerator.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
+            return new AuthResponse
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                Token = newAccessToken,
+                RefreshToken = newRefreshToken
             };
         }
 
@@ -54,12 +89,14 @@ namespace WebApi.Infrastructure.Services
             await userManager.AddToRoleAsync(user, UserRole.Admin.ToString());
 
             var token = tokenGenerator.GenerateToken(user, [UserRole.Admin.ToString()]);
+            var newRefreshToken = tokenGenerator.GenerateRefreshToken();
 
             return new AuthResponse
             {
                 UserId = user.Id,
                 Email = user.Email,
                 Token = token,
+                RefreshToken = newRefreshToken,
             };
         }
     }
