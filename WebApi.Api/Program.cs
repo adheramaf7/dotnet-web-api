@@ -1,20 +1,14 @@
 using System.Text;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using WebApi.Application.Interfaces.Service;
-using WebApi.Application.Validators.Auth;
 using WebApi.Infrastructure.Data;
 using WebApi.Infrastructure.Identity;
-using WebApi.Infrastructure.Services;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.Api.Middlewares;
+using WebApi.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -42,53 +36,43 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 //register dependency injection
-builder.Services.AddScoped<JwtTokenGenerator>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-//register fluent validation
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<RefreshTokenRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<ChangePasswordRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileRequestValidator>();
-
-builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddApplicationServices();
+builder.Services.AddFluentValidationServices();
 
 //register swagger
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// builder.Services.AddSwaggerGen(options =>
-// {
-//     options.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
+// builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
 
-//     // JWT Bearer auth in Swagger
-//     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//     {
-//         Name = "Authorization",
-//         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-//         Scheme = "Bearer",
-//         BearerFormat = "JWT",
-//         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-//         Description = "Masukkan token JWT di sini dengan format: Bearer {token}"
-//     });
+    // JWT Bearer auth in Swagger
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Masukkan token JWT di sini dengan format: Bearer {token}"
+    });
 
-//     options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-//     {
-//         {
-//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//             {
-//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
-//                 {
-//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             new string[] {}
-//         }
-//     });
-// });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+           []
+        }
+    });
+});
 
 var app = builder.Build();
 
