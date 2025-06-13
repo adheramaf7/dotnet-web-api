@@ -38,11 +38,11 @@ builder.Services.AddAuthorization();
 //register dependency injection
 builder.Services.AddApplicationServices();
 builder.Services.AddFluentValidationServices();
+builder.Services.AddAutoMapperServices();
 
 //register swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });

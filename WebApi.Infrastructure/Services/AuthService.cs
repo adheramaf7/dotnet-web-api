@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using WebApi.Application.Common;
 using WebApi.Application.DTOs.Request;
@@ -10,12 +11,13 @@ using WebApi.Infrastructure.Identity;
 
 namespace WebApi.Infrastructure.Services
 {
-    public class AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtTokenGenerator tokenGenerator) : IAuthService
+    public class AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, JwtTokenGenerator tokenGenerator, IMapper mapper) : IAuthService
     {
 
         private readonly UserManager<ApplicationUser> userManager = userManager;
         private readonly SignInManager<ApplicationUser> signInManager = signInManager;
         private readonly JwtTokenGenerator tokenGenerator = tokenGenerator;
+        private readonly IMapper mapper = mapper;
 
         public async Task ChangePasswordAsync(string userId, ChangePasswordRequest request)
         {
@@ -37,13 +39,8 @@ namespace WebApi.Infrastructure.Services
 
             var roles = await userManager.GetRolesAsync(user);
 
-            var profile = new UserProfileResponse
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                FullName = user.FullName,
-                Roles = roles
-            };
+            var profile = mapper.Map<UserProfileResponse>(user);
+            profile.Roles = roles;
 
             return profile;
         }
@@ -63,13 +60,8 @@ namespace WebApi.Infrastructure.Services
             var token = tokenGenerator.GenerateToken(user, roles);
             var refreshToken = tokenGenerator.GenerateRefreshToken();
 
-            var userProfile = new UserProfileResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Roles = roles,
-                Email = user.Email!,
-            };
+            var userProfile = mapper.Map<UserProfileResponse>(user);
+            userProfile.Roles = roles;
 
             return new AuthResponse
             {
@@ -99,13 +91,8 @@ namespace WebApi.Infrastructure.Services
 
             await userManager.UpdateAsync(user);
 
-            var userProfile = new UserProfileResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Roles = roles,
-                Email = user.Email!,
-            };
+            var userProfile = mapper.Map<UserProfileResponse>(user);
+            userProfile.Roles = roles;
 
             return new AuthResponse
             {
@@ -140,13 +127,8 @@ namespace WebApi.Infrastructure.Services
             var token = tokenGenerator.GenerateToken(user, roles);
             var newRefreshToken = tokenGenerator.GenerateRefreshToken();
 
-            var userProfile = new UserProfileResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Roles = [UserRole.Admin.ToString()],
-                Email = user.Email!,
-            };
+            var userProfile = mapper.Map<UserProfileResponse>(user);
+            userProfile.Roles = roles;
 
             return new AuthResponse
             {
@@ -189,15 +171,10 @@ namespace WebApi.Infrastructure.Services
                 throw new AppException("Update profile failed", errors);
             }
 
-            var profile = new UserProfileResponse
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                FullName = user.FullName,
-                Roles = roles
-            };
+            var userProfile = mapper.Map<UserProfileResponse>(user);
+            userProfile.Roles = roles;
 
-            return profile;
+            return userProfile;
         }
 
     }
