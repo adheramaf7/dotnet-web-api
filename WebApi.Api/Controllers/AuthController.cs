@@ -1,29 +1,53 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Application.DTOs.Request;
+using WebApi.Application.DTOs.Request.Auth;
 using WebApi.Application.Interfaces.Service;
 
 namespace WebApi.Api.Controllers
 {
     [ApiController]
-    [Route("api")]
-    public class AuthController(IAuthService authService) : ControllerBase
+    [Route("api/v1")]
+    public class AuthController(IAuthService authService) : BaseApiController
     {
         private readonly IAuthService authService = authService;
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
-        {
-            var result = await authService.LoginAsync(request);
-
-            return Ok(result);
-        }
-
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             var result = await authService.RegisterAsync(request);
 
-            return Ok(result);
+            return Success(result);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var result = await authService.LoginAsync(request);
+
+            return Success(result);
+        }
+
+        [Authorize]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            var accessToken = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+
+            var result = await authService.RefreshTokenAsync(request.RefreshToken, accessToken);
+
+            return Success(result);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var accessToken = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+
+            await authService.RevokeTokenAsync(accessToken);
+
+            return Success<object>(null, "Logout Success");
         }
     }
 }

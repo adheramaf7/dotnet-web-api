@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace WebApi.Application.DTOs.Request.Auth
 {
-    public class RefreshTokenRequest
+    public class UpdateProfileRequest
     {
-        public string RefreshToken { get; set; } = string.Empty;
+
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }

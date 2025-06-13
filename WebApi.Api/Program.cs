@@ -11,6 +11,7 @@ using WebApi.Infrastructure.Data;
 using WebApi.Infrastructure.Identity;
 using WebApi.Infrastructure.Services;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using WebApi.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 //register fluent validation
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RefreshTokenRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ChangePasswordRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileRequestValidator>();
 
 builder.Services.AddFluentValidationAutoValidation();
 
@@ -105,6 +109,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

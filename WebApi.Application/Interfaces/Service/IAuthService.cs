@@ -8,6 +8,10 @@ namespace WebApi.Application.Interfaces.Service
     {
         Task<AuthResponse> RegisterAsync(RegisterRequest request);
         Task<AuthResponse> LoginAsync(LoginRequest request);
-        Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request);
+        Task<AuthResponse> RefreshTokenAsync(string refreshToken, string accessToken);
+        Task RevokeTokenAsync(string accessToken);
+        Task ChangePasswordAsync(string userId, ChangePasswordRequest request);
+        Task<UserProfileResponse> GetUserProfileAsync(string userId);
+        Task<UserProfileResponse> UpdateProfileAsync(string userId, UpdateProfileRequest request);
     }
 }
