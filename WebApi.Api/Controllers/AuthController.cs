@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Application.DTOs.Request;
@@ -13,7 +14,7 @@ namespace WebApi.Api.Controllers
         private readonly IAuthService authService = authService;
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromForm] RegisterRequest request)
         {
             var result = await authService.RegisterAsync(request);
 
@@ -21,16 +22,16 @@ namespace WebApi.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromForm] LoginRequest request)
         {
             var result = await authService.LoginAsync(request);
 
             return Success(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        public async Task<IActionResult> RefreshToken([FromForm] RefreshTokenRequest request)
         {
             var accessToken = Request.Headers.Authorization.ToString().Replace("Bearer ", "");
 
@@ -39,7 +40,7 @@ namespace WebApi.Api.Controllers
             return Success(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

@@ -7,7 +7,8 @@ namespace WebApi.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddAutoMapperServices(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
+            services.AddAutoMapper(typeof(ContactMappingProfile).Assembly);
 
             return services;
         }

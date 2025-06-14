@@ -60,6 +60,11 @@ namespace WebApi.Infrastructure.Services
             var token = tokenGenerator.GenerateToken(user, roles);
             var refreshToken = tokenGenerator.GenerateRefreshToken();
 
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+            await userManager.UpdateAsync(user);
+
             var userProfile = mapper.Map<UserProfileResponse>(user);
             userProfile.Roles = roles;
 
@@ -87,7 +92,7 @@ namespace WebApi.Infrastructure.Services
             var newRefreshToken = tokenGenerator.GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
 
             await userManager.UpdateAsync(user);
 
@@ -104,11 +109,15 @@ namespace WebApi.Infrastructure.Services
 
         public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
         {
+            var newRefreshToken = tokenGenerator.GenerateRefreshToken();
+
             var user = new ApplicationUser
             {
                 UserName = request.Email,
                 Email = request.Email,
-                FullName = request.FullName
+                FullName = request.FullName,
+                RefreshToken = newRefreshToken,
+                RefreshTokenExpiryTime = DateTime.Now.AddDays(7)
             };
 
             var result = await userManager.CreateAsync(user, request.Password);
@@ -125,7 +134,6 @@ namespace WebApi.Infrastructure.Services
             };
 
             var token = tokenGenerator.GenerateToken(user, roles);
-            var newRefreshToken = tokenGenerator.GenerateRefreshToken();
 
             var userProfile = mapper.Map<UserProfileResponse>(user);
             userProfile.Roles = roles;

@@ -17,7 +17,6 @@ namespace WebApi.Infrastructure.DependencyInjection
 
             services.AddFluentValidationAutoValidation();
 
-
             return services;
         }
     }

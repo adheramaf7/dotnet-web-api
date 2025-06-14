@@ -5,13 +5,16 @@ INFRA_PROJECT=$(PROJECT_NAME).Infrastructure
 
 # Nama migration dikirim sebagai argumen: make migrate name=NamaMigration
 migrate:
-	dotnet ef migrations add $(name) -p $(INFRA_PROJECT) -s $(STARTUP_PROJECT)
+	dotnet ef migrations add ${name} -p $(INFRA_PROJECT) -s $(STARTUP_PROJECT)
 
 update-db:
 	dotnet ef database update -p $(INFRA_PROJECT) -s $(STARTUP_PROJECT)
 
 run:
 	dotnet run --project $(STARTUP_PROJECT)
+
+add-package:
+	dotnet add $(PROJECT_NAME).${lib} package ${package}
 
 watch:
 	dotnet watch --project $(STARTUP_PROJECT)

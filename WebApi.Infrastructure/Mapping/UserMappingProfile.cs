@@ -4,10 +4,9 @@ using WebApi.Infrastructure.Identity;
 
 namespace WebApi.Infrastructure.Mapping
 {
-    public class MappingProfile : Profile
+    public class UserMappingProfile : Profile
     {
-
-        public MappingProfile()
+        public UserMappingProfile()
         {
             CreateMap<ApplicationUser, UserProfileResponse>();
         }

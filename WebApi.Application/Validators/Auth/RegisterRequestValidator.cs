@@ -9,14 +9,14 @@ namespace WebApi.Application.Validators.Auth
         public RegisterRequestValidator()
         {
             RuleFor(field => field.FullName)
-                .NotEmpty().WithMessage("Full name is required.");
+                .NotEmpty();
 
             RuleFor(field => field.Email)
-                .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Email format is invalid.");
+                .NotEmpty()
+                .EmailAddress();
 
             RuleFor(field => field.Password)
-                .NotEmpty().WithMessage("Password is required.")
+                .NotEmpty()
                 .MinimumLength(6).WithMessage("Password must be at least 6 characters.");
         }
     }
