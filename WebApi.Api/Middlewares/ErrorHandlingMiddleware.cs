@@ -18,6 +18,8 @@ namespace WebApi.Api.Middlewares
             }
             catch (AppException ex)
             {
+                logger.LogWarning(ex, "General Error");
+
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, ex.Errors));
@@ -34,24 +36,32 @@ namespace WebApi.Api.Middlewares
             }
             catch (UnauthorizedAccessException ex)
             {
+                logger.LogWarning(ex, "Unauthorized");
+
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, [ex.Message]));
             }
             catch (SecurityTokenException ex)
             {
+                logger.LogWarning(ex, "Token Invalid");
+
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, [ex.Message]));
             }
             catch (NotFoundException ex)
             {
+                logger.LogWarning(ex, "Not Found");
+
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, [ex.Message]));
             }
             catch (AccessForbiddenException ex)
             {
+                logger.LogWarning(ex, "Access Forbidden");
+
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, [ex.Message]));
