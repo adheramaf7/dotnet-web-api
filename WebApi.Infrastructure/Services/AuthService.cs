@@ -83,7 +83,7 @@ namespace WebApi.Infrastructure.Services
             var email = (principal?.Identity?.Name) ?? throw new AppException("Invalid access token");
             var user = await userManager.FindByEmailAsync(email);
 
-            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
                 throw new AppException("Invalid refresh token");
 
             var roles = await userManager.GetRolesAsync(user);

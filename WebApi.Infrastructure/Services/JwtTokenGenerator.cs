@@ -29,11 +29,13 @@ namespace WebApi.Infrastructure.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var lifeTimeMinutes = int.Parse(configuration["Jwt:TokenLifeTime"] ?? "0");
+
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
                 audience: configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.Now.AddMinutes(lifeTimeMinutes),
                 signingCredentials: creds
             );
 
