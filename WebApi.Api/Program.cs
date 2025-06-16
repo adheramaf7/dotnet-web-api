@@ -7,17 +7,31 @@ using WebApi.Infrastructure.Data;
 using WebApi.Infrastructure.Identity;
 using WebApi.Api.Middlewares;
 using WebApi.Infrastructure.DependencyInjection;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//setup serilog
+Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.FromLogContext()
+        .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// 1. Add Controller support
+builder.Services.AddControllers();
+
+// 2. Register EF Core DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 3. Register Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-//register authentication services
+// 4. Register Authentication (JWT Bearer)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -33,16 +47,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// 5. Authorization
 builder.Services.AddAuthorization();
 
-builder.Services.AddControllers();
-
-//register dependency injection
-builder.Services.AddApplicationServices();
+// 6. Register FluentValidation (should come after AddControllers or AddMvc)
 builder.Services.AddFluentValidationServices();
+
+// 7. Register AutoMapper and other custom services
+builder.Services.AddApplicationServices();
 builder.Services.AddAutoMapperServices();
 
-//register swagger
+// 8. Swagger (always last in DI, but before middleware pipeline)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -93,11 +108,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
+
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 await app.RunAsync();

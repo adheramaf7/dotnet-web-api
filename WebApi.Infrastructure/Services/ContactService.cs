@@ -16,7 +16,7 @@ namespace WebApi.Infrastructure.Services
 
         public async Task<PaginatedResponse<ContactResponse>> GetAllAsync(string userId, int pageNumber = 1, int pageSize = 10)
         {
-            var (items, pageCount) = await contactRepository.GetPagedAsync(
+            var (items, totalCount) = await contactRepository.GetPagedAsync(
                 filter: (x) => x.UserId == userId,
                 pageNumber: 1,
                 pageSize: 10
@@ -24,10 +24,10 @@ namespace WebApi.Infrastructure.Services
 
             return new PaginatedResponse<ContactResponse>
             {
-                Items = mapper.Map<IList<ContactResponse>>(items),
+                Items = mapper.Map<IEnumerable<ContactResponse>>(items),
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                TotalItems = items.Count(),
+                TotalItems = totalCount,
             };
         }
 
