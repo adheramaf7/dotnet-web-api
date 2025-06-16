@@ -7,13 +7,13 @@ using WebApi.Infrastructure.Data;
 
 namespace WebApi.Infrastructure.Repository
 {
-    public class Repository<T>(AppDbContext dbContext) : IRepository<T> where T : BaseEntity
+    public abstract class Repository<T>(AppDbContext dbContext) : IRepository<T> where T : BaseEntity
     {
         private readonly AppDbContext _dbContext = dbContext;
         private readonly DbSet<T> _entities = dbContext.Set<T>();
         private IDbContextTransaction? _transaction;
 
-        public async Task<IList<T>> GetAllAsync(
+        public async Task<IEnumerable<T>> GetAllAsync(
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             bool tracked = false,
@@ -34,6 +34,32 @@ namespace WebApi.Infrastructure.Repository
                 query = query.Include(includeProp);
 
             return await query.ToListAsync();
+        }
+
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, int pageNumber = 1, int pageSize = 10, bool tracked = false, params string[] includeProperties)
+        {
+            IQueryable<T> query = _entities;
+
+            if (!tracked)
+                query = query.AsNoTracking();
+
+            if (filter is not null)
+                query = query.Where(filter);
+
+            foreach (var includeProp in includeProperties)
+                query = query.Include(includeProp);
+
+            int totalCount = await query.CountAsync();
+
+            if (orderBy is not null)
+                query = orderBy(query);
+
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<T?> GetOneAsync(
@@ -92,25 +118,30 @@ namespace WebApi.Infrastructure.Repository
 
         public async Task CreateAsync(T entity)
         {
-            await _entities.AddAsync(entity);
+            _entities.Add(entity);
+
+            await SaveChangesAsync();
         }
 
-        public Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             _entities.Update(entity);
-            return Task.CompletedTask;
+
+            await SaveChangesAsync();
         }
 
-        public Task DeleteAsync(T entity)
+        public async Task DeleteAsync(T entity)
         {
             _entities.Remove(entity);
-            return Task.CompletedTask;
+
+            await SaveChangesAsync();
         }
 
-        public Task DeleteManyAsync(List<T> entities)
+        public async Task DeleteManyAsync(List<T> entities)
         {
             _entities.RemoveRange(entities);
-            return Task.CompletedTask;
+
+            await SaveChangesAsync();
         }
 
         public async Task SaveChangesAsync()
@@ -141,30 +172,5 @@ namespace WebApi.Infrastructure.Repository
             }
         }
 
-        public async Task<(IList<T> Items, int TotalCount)> GetPagedAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, int pageNumber = 1, int pageSize = 10, bool tracked = false, params string[] includeProperties)
-        {
-            IQueryable<T> query = _entities;
-
-            if (!tracked)
-                query = query.AsNoTracking();
-
-            if (filter is not null)
-                query = query.Where(filter);
-
-            foreach (var includeProp in includeProperties)
-                query = query.Include(includeProp);
-
-            int totalCount = await query.CountAsync();
-
-            if (orderBy is not null)
-                query = orderBy(query);
-
-            var items = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return (items, totalCount);
-        }
     }
 }

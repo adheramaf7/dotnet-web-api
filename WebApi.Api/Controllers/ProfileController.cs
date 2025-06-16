@@ -27,7 +27,7 @@ namespace WebApi.Api.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -38,7 +38,7 @@ namespace WebApi.Api.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("change-password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePassword([FromForm] ChangePasswordRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 

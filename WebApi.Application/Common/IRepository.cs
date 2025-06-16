@@ -5,8 +5,8 @@ namespace WebApi.Application.Common
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        Task<IList<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool tracked = false, params string[] includeProperties);
-        Task<(IList<T> Items, int TotalCount)> GetPagedAsync(
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, bool tracked = false, params string[] includeProperties);
+        Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             int pageNumber = 1,

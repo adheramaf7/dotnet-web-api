@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Application.DTOs.Response;
 
@@ -5,6 +6,11 @@ namespace WebApi.Api.Controllers
 {
     public abstract class BaseApiController : ControllerBase
     {
+
+        protected string? GetLoggedInUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
 
         protected IActionResult Success<T>(T? data, string message = "Success")
         {
