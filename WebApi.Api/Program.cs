@@ -35,13 +35,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddControllers();
+
 //register dependency injection
 builder.Services.AddApplicationServices();
 builder.Services.AddFluentValidationServices();
 builder.Services.AddAutoMapperServices();
 
 //register swagger
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

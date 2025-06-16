@@ -1,7 +1,6 @@
-using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.IdentityModel.Tokens;
 using WebApi.Application.Common;
-using WebApi.Application.DTOs.Response;
 using WebApi.Application.Exceptions;
 
 namespace WebApi.Api.Middlewares
@@ -23,7 +22,7 @@ namespace WebApi.Api.Middlewares
 
                 await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailResponse(ex.Message, ex.Errors));
             }
-            catch (ValidationException ex)
+            catch (FluentValidation.ValidationException ex)
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
 

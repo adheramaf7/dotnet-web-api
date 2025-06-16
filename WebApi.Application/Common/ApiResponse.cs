@@ -1,5 +1,4 @@
-
-namespace WebApi.Application.DTOs.Response
+namespace WebApi.Application.Common
 {
     public class ApiResponse<T>
     {

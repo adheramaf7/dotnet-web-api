@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Application.DTOs.Response;
+using WebApi.Application.Common;
 
 namespace WebApi.Api.Controllers
 {
