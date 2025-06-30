@@ -76,3 +76,6 @@ desktop.ini
 *.sln.iml
 
 */Logs/
+
+WebApi.Api/appsettings.Development.json
+WebApi.Api/appsettings.json
