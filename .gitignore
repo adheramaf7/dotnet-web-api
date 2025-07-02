@@ -57,8 +57,6 @@ artifacts/
 .env
 .env.*
 
-# # launchSettings.json (optional: include if shared config, otherwise ignore for per-dev settings)
-# **/Properties/launchSettings.json
 
 # Mac/Linux/Windows system files
 .DS_Store
